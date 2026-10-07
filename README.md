@@ -4,10 +4,14 @@ All controls live in Obsidian's **Digital Garden garden plugin menu**. There
 are no settings buttons on the published website. Enable or disable this
 plugin there, and publish/redeploy after changing settings.
 
-Configure the note-to-TOC buffer, font size, line height, item spacing, nested
-heading indentation, maximum height, deepest heading level, title visibility,
-and current-heading highlighting. Values are bounded by the runtime to keep
-the layout usable. Pane width remains controlled by Resizable Panes.
+Simple preset menus adjust text size, space beside the note, space between headings,
+and list height. Choose main headings, main plus subheadings, or all headings;
+toggle the note name and current-heading highlight. Pane width remains
+controlled by Resizable Panes.
+
+Uses Digital Garden's existing select and checkbox controls. No modifications
+to the Obsidian Digital Garden plugin are needed. The published site never
+shows a settings panel.
 
 The garden's own TOC must be enabled for the note. This plugin styles and
 filters the existing TOC; it does not generate a second TOC. Works with

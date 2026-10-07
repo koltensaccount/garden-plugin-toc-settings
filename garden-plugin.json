@@ -1,21 +1,19 @@
 {
   "id": "toc-settings",
   "name": "TOC Settings",
-  "version": "1.0.0",
-  "description": "Configure TOC typography, spacing, heading depth and visibility from the Digital Garden plugin menu.",
+  "version": "1.1.0",
+  "description": "Simple controls for TOC text, spacing and headings in the Digital Garden plugin menu.",
   "author": "Kolten Bendickson",
   "slots": { "common.footer": "templates/config.njk" },
   "styles": ["styles/toc-settings.css"],
   "scripts": ["assets/toc-settings.js"],
   "settings": [
-    { "key": "buffer", "name": "Note-to-TOC buffer (px)", "type": "number", "default": 20 },
-    { "key": "fontSize", "name": "TOC text size (px)", "type": "number", "default": 15 },
-    { "key": "lineHeight", "name": "Line height", "type": "number", "default": 1.5 },
-    { "key": "itemSpacing", "name": "Item vertical padding (px)", "type": "number", "default": 5 },
-    { "key": "indent", "name": "Nested heading indent (px)", "type": "number", "default": 14 },
-    { "key": "maxHeight", "name": "Maximum TOC height (% of screen)", "type": "number", "default": 70 },
-    { "key": "maxHeadingLevel", "name": "Deepest heading level (1-6)", "type": "number", "default": 6 },
-    { "key": "showTitle", "name": "Show note title above TOC", "type": "boolean", "default": true },
-    { "key": "highlightActive", "name": "Highlight current heading", "type": "boolean", "default": true }
+    { "key": "textSize", "name": "Text size", "type": "select", "options": ["Small", "Medium", "Large"], "default": "Medium" },
+    { "key": "noteSpacing", "name": "Space beside the note", "type": "select", "options": ["Narrow", "Comfortable", "Wide"], "default": "Comfortable" },
+    { "key": "headingSpacing", "name": "Space between headings", "type": "select", "options": ["Compact", "Comfortable", "Spacious"], "default": "Comfortable" },
+    { "key": "listHeight", "name": "List height", "type": "select", "options": ["Short", "Medium", "Tall"], "default": "Medium" },
+    { "key": "detail", "name": "Headings to show", "type": "select", "options": ["Main headings", "Main + subheadings", "All headings"], "default": "All headings" },
+    { "key": "showTitle", "name": "Show note name", "type": "boolean", "default": true },
+    { "key": "highlightActive", "name": "Highlight where I am", "type": "boolean", "default": true }
   ]
 }
