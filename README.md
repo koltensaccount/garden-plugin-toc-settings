@@ -1,46 +1,39 @@
-# TOC Settings for Digital Garden
+# TOC Settings
 
-All controls live in Obsidian's **Digital Garden garden plugin menu**. There
-are no settings buttons on the published website. Enable or disable this
-plugin there, and publish/redeploy after changing settings.
+Simple TOC presentation presets, collapsible branches and automatic following of the core active heading.
 
-Simple preset menus adjust text size, space beside the note, space between headings,
-and list height. Choose main headings, main plus subheadings, or all headings;
-toggle the note name and current-heading highlight. Pane width remains
-controlled by Resizable Panes.
+![TOC Settings in a Digital Garden](screenshot.png)
 
-Uses Digital Garden's existing select and checkbox controls. No modifications
-to the Obsidian Digital Garden plugin are needed. The published site never
-shows a settings panel.
+## Installation
 
-The garden's own TOC must be enabled for the note. This plugin styles and
-filters the existing TOC; it does not generate a second TOC. Works with
-Resizable Panes and the garden's mobile sidebar.
+In Obsidian: Settings > Digital Garden > Plugins > Manage plugins > Browse & install. Until listed in the community gallery, use Install from GitHub with `koltensaccount/garden-plugin-toc-settings`. A garden with current plugin support is required. Installation is file copying only; no setup scripts or dependencies need to run on the garden. Save settings and let the site rebuild.
 
-## Publish as a separate repository
+## Usage
 
-This folder is the repository root. No build step or dependencies are needed.
+Choose text size, spacing, list height, heading depth and title visibility in the garden manager. Branch buttons are keyboard accessible. Core Digital Garden owns active-heading tracking; this plugin observes that state. Bottom sheets keep the core height behavior. Folded targets remain navigable when Heading Folding is installed.
 
-```sh
-git init -b main
-git add .
-git commit -m "Initial TOC Settings plugin"
-gh repo create garden-plugin-toc-settings --public --source=. --remote=origin --push
-```
+## Settings
 
-GitHub CLI must be authenticated. Alternatively, create an empty public repo
-on GitHub and push this folder to it. Paste the repository URL into Digital
-Garden's **Install from GitHub** control. The manifest is at the required root
-path. Future versions should bump `garden-plugin.json` and `package.json`.
-The installer prefers the latest GitHub release when one exists, otherwise
-the default branch. Install updates through the same garden plugin menu.
+| Key | Setting | Default |
+| --- | --- | --- |
+| `textSize` | Text size | "Medium" |
+| `noteSpacing` | Space beside the note | "Comfortable" |
+| `headingSpacing` | Space between headings | "Comfortable" |
+| `listHeight` | List height | "Medium" |
+| `detail` | Headings to show | "All headings" |
+| `showTitle` | Show note name | true |
+| `highlightActive` | Highlight where I am | true |
+| `collapsible` | Collapsible TOC branches | true |
+| `followActive` | Keep current heading visible | true |
 
-## Develop locally
+## Compatibility and Accessibility
 
-```sh
-npm run check
-npm run install:garden -- /path/to/my-digital-garden
-```
+Works alone and with the other reading plugins. Shared footer controls use the neutral `dg-nav-tools` convention, with a floating fallback when navigation is absent. Each plugin ships the helper it needs; none imports another plugin. Current Digital Garden uses full-document navigation. Initialization is idempotent. Native controls, accessible labels, focus outlines and appropriate ARIA states are retained. Print styles remain separate from screen preferences. Browser storage failures fall back safely.
 
-The installation command copies runtime files and preserves existing settings.
-Requires a Digital Garden template with garden plugin support and Node 22+.
+## Development
+
+Node 22+; `npm ci`, `npm run check`, `npm test`. Tests use Node's test runner and Playwright's driver with an installed Chrome/Edge browser (`CHROME_PATH` overrides discovery). CI uses Ubuntu's Chrome. Browser tests never invoke an OS print dialog. The plugin files are ready to copy directly into `src/plugins/toc-settings/` in a current test garden. Real upstream integration and combination checks are reported in `VALIDATION.md`.
+
+## License
+
+MIT, copyright 2026 Kolten Bendickson.

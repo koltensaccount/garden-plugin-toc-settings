@@ -2,7 +2,8 @@
   "use strict";
   function boot() {
     var toc = document.querySelector("#page-panel .toc-container");
-    if (!toc) return;
+    if (!toc || toc.dgConfigured) return;
+    toc.dgConfigured = true;
     var config = window.DG_TOC_SETTINGS || {};
     var presets = {
       fontSize: { key: "textSize", values: { Small: 13, Medium: 15, Large: 18 } },
@@ -44,24 +45,69 @@
     headings.forEach(function (heading) {
       heading.link.hidden = heading.level > depth;
     });
-    var visible = headings.filter(function (heading) { return !heading.link.hidden; });
+    var branches = [];
+    if (config.collapsible !== false) toc.querySelectorAll("li").forEach(function (item) {
+      var children = item.querySelector(":scope > ol, :scope > ul");
+      var link = item.querySelector(":scope > a");
+      if (!children || !link || !children.querySelector("a:not([hidden])")) return;
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "dg-toc-branch";
+      button.title = "Collapse subheadings";
+      button.setAttribute("aria-label", "Toggle subheadings under " + link.textContent.trim());
+      button.setAttribute("aria-expanded", "true");
+      button.innerHTML = '<i data-lucide="chevron-down"></i><span aria-hidden="true">&#9662;</span>';
+      item.insertBefore(button, link);
+      function expand(open) {
+        children.hidden = !open;
+        button.setAttribute("aria-expanded", String(open));
+        button.title = open ? "Collapse subheadings" : "Expand subheadings";
+      }
+      button.addEventListener("click", function () { expand(children.hidden); });
+      branches.push({ children: children, expand: expand });
+    });
+    if (window.lucide) window.lucide.createIcons();
     var queued = false;
+    var lastActive;
     function updateActive() {
       queued = false;
-      if (config.highlightActive === false || !visible.length) return;
-      var current = visible[0];
-      visible.forEach(function (heading) {
-        if (heading.target.getBoundingClientRect().top <= 100) current = heading;
-      });
-      headings.forEach(function (heading) { heading.link.classList.toggle("toc-active", heading === current); });
+      panel.classList.toggle("dg-toc-desktop", getComputedStyle(panel).flexDirection !== "column");
+      var current = headings.find(function (heading) { return heading.link.classList.contains("toc-active"); });
+      if (!current) return;
+      var owner = current.target.closest("[data-dg-fold-hidden]");
+      while (owner) {
+        var ancestor = document.getElementById(owner.getAttribute("data-dg-fold-owner"));
+        var match = headings.find(function (heading) { return heading.target === ancestor; });
+        if (!match) break;
+        current = match;
+        owner = ancestor.closest("[data-dg-fold-hidden]");
+      }
+      if (current.link.hidden) {
+        var previous = headings.slice(0, headings.indexOf(current) + 1).filter(function (heading) { return !heading.link.hidden; });
+        current = previous[previous.length - 1];
+      }
+      if (!current) return;
+      headings.forEach(function (heading) { if (heading.link.classList.contains("toc-active") !== (heading === current)) heading.link.classList.toggle("toc-active", heading === current); });
+      if (current !== lastActive && !document.documentElement.classList.contains("dg-note-locked")) {
+        branches.forEach(function (branch) { if (branch.children.contains(current.link)) branch.expand(true); });
+        if (config.followActive !== false && !toc.matches(":hover, :focus-within")) {
+          var box = current.link.getBoundingClientRect();
+          var viewport = toc.getBoundingClientRect();
+          if (box.top < viewport.top || box.bottom > viewport.bottom) toc.scrollTop += box.top - viewport.top - toc.clientHeight / 3;
+        }
+        lastActive = current;
+      }
     }
     function scheduleActive() {
       if (queued) return;
       queued = true;
       window.requestAnimationFrame(updateActive);
     }
-    window.addEventListener("scroll", scheduleActive, { passive: true });
+    // Core owns scroll tracking. Observe its class changes and map filtered/folded targets.
+    new MutationObserver(scheduleActive).observe(toc, { subtree: true, attributes: true, attributeFilter: ["class"] });
     window.addEventListener("resize", scheduleActive, { passive: true });
+    document.addEventListener("dg:note-unlocked", scheduleActive);
+    document.addEventListener("dg:fold-change", scheduleActive);
     scheduleActive();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
