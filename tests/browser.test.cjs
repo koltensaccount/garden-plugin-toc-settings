@@ -13,6 +13,9 @@ function fixture(url) {
   const query = new URL(url, "http://localhost").searchParams;
   const defaults = Object.fromEntries((manifest.settings || []).map(setting => [setting.key, setting.default]));
   if (manifest.id === "reading-progress") defaults.resumeReading = true;
+  if (manifest.id === 'toc-settings' && query.has('detail')) {
+    defaults.detail = query.get('detail'); defaults.textSize = 'Large'; defaults.highlightActive = false;
+  }
   if (manifest.id === "theme-toggle" && query.has("remember")) defaults.rememberMode = query.get("remember") !== "false";
   const config = configNames[manifest.id] ? `<script>window.${configNames[manifest.id]}=${JSON.stringify(defaults)};</script>` : "";
   const lock = manifest.id === "note-lock" ? require("../index.js").createResolver({ defaultPassword: "browser fixture only", notePasswords: "{}" })("/", true) : null;
@@ -42,7 +45,7 @@ test("browser feature, keyboard, repeat initialization and responsive safety", {
       const file = path.join(root, url.pathname);
       res.setHeader("Content-Type", file.endsWith(".js") ? "text/javascript" : "text/css");
       res.end(fs.readFileSync(file));
-    } else { res.setHeader("Content-Type", "text/html"); res.end(fixture(req.url).replace('/styles/_theme.test.css', '/styles/_theme.test.css?single=' + (url.searchParams.get('single') || ''))); }
+    } else { res.setHeader("Content-Type", "text/html"); let html=fixture(req.url).replace('/styles/_theme.test.css', '/styles/_theme.test.css?single=' + (url.searchParams.get('single') || '')); if(url.searchParams.has('noToc'))html=html.replace('class="toc-container"','class="no-toc-container"'); res.end(html); }
   });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -171,6 +174,18 @@ test("browser feature, keyboard, repeat initialization and responsive safety", {
       await page.locator('.dg-reading-meta button').click();
       await page.waitForTimeout(80);
       assert(await page.evaluate(() => scrollY > 0));
+    }
+    if (id === 'toc-settings') {
+      await page.setViewportSize({width:1600,height:900});
+      await page.goto(base + '/?detail=' + encodeURIComponent('Main + subheadings'));
+      assert.equal(await page.locator('.toc-container a[href="#nested"]').isVisible(), false);
+      assert.equal(await page.locator('.toc-container a[href="#first"]').isVisible(), true);
+      assert.equal(await page.locator('body').evaluate(el => el.style.getPropertyValue('--dg-toc-font-size')), '18px');
+      assert(await page.locator('#page-panel').evaluate(el => el.classList.contains('dg-toc-no-highlight')));
+      await page.goto(base + '/?detail=' + encodeURIComponent('Main headings'));
+      assert.equal(await page.locator('.toc-container a[href="#first"]').isVisible(), false);
+      await page.goto(base + '/?noToc');
+      assert.equal(await page.locator('.dg-toc-branch').count(), 0);
     }
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 });
