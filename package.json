@@ -1,0 +1,10 @@
+{
+  "name": "garden-plugin-toc-settings",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check assets/toc-settings.js",
+    "install:garden": "node scripts/install.cjs"
+  },
+  "engines": { "node": ">=22" }
+}

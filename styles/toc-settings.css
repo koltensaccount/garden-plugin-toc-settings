@@ -1,0 +1,31 @@
+#page-panel.dg-toc-configured .sidebar-container {
+  box-sizing: border-box;
+  padding-left: var(--dg-toc-buffer, 20px) !important;
+  min-width: 0;
+}
+#page-panel.dg-toc-configured .toc-container {
+  font-size: var(--dg-toc-font-size) !important;
+  line-height: var(--dg-toc-line-height, 1.5);
+  max-height: var(--dg-toc-max-height) !important;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+#page-panel.dg-toc-configured .toc-container li {
+  padding: var(--dg-toc-item-padding) !important;
+}
+#page-panel.dg-toc-configured .toc-container a[hidden] {
+  display: none !important;
+}
+#page-panel.dg-toc-configured .toc-container li:has(> a[hidden]):not(:has(a:not([hidden]))) {
+  display: none;
+}
+#page-panel.dg-toc-hide-title .toc-title-container { display: none; }
+#page-panel.dg-toc-no-highlight .toc-active {
+  color: var(--text-normal) !important;
+  font-weight: inherit !important;
+}
+#page-panel.dg-toc-configured .toc-container a:focus-visible {
+  outline: 2px solid var(--interactive-accent, var(--text-accent));
+  outline-offset: 2px;
+}
